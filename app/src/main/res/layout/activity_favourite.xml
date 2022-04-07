@@ -24,7 +24,9 @@
             android:background="@android:color/transparent"
             android:contentDescription="@string/back_btn"
             android:src="@drawable/ic_back"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            android:padding="5dp"
+            />
 
         <TextView
             android:layout_width="match_parent"
