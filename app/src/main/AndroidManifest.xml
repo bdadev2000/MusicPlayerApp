@@ -10,7 +10,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/splash_screen">
+        android:theme="@style/splash_screen"
+        android:requestLegacyExternalStorage="true"
+        >
         <activity
             android:name=".PlaylistActivity"
             android:exported="true" />
