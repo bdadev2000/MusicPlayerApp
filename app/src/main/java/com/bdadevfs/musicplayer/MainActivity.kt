@@ -31,8 +31,18 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestRuntimePermission()
-        initializeLayout()
+
+        setTheme(R.style.coolPinkNav)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        //for nav drawer
+        toggle = ActionBarDrawerToggle(this, binding.root,R.string.open,R.string.close)
+        binding.root.addDrawerListener(toggle)
+        toggle.syncState()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        if(requestRuntimePermission())
+            initializeLayout()
 
         binding.shuffleBtn.setOnClickListener {
             startActivity(Intent(this@MainActivity,PlayerActivity::class.java))
@@ -60,19 +70,23 @@ class MainActivity : AppCompatActivity() {
 
 
     //for requesting permission
-    private fun  requestRuntimePermission(){
+    private fun  requestRuntimePermission():Boolean{
         if (ActivityCompat.checkSelfPermission(this,android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),13)
-
+            return false
         }
+        return true
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == 13){
             if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
                 Toast.makeText(this,"Permission Granted",Toast.LENGTH_SHORT).show()
+                initializeLayout()
+            }
             else
                 ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),13)
         }
@@ -85,17 +99,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeLayout() {
-        setTheme(R.style.coolPinkNav)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        //for nav drawer
-        toggle = ActionBarDrawerToggle(this, binding.root,R.string.open,R.string.close)
-        binding.root.addDrawerListener(toggle)
-        toggle.syncState()
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         MusicListMA = getAllAudio()
-
         binding.musicRV.setHasFixedSize(true)
         binding.musicRV.setItemViewCacheSize(13)
         binding.musicRV.layoutManager = LinearLayoutManager(this@MainActivity)
