@@ -9,6 +9,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
+import java.lang.Exception
 
 class MusicService : Service() {
     private var myBinder = MyBinder()
@@ -37,12 +38,18 @@ class MusicService : Service() {
         val exitIntent = Intent(baseContext,NotificationReceiver::class.java).setAction(ApplicationClass.EXIT)
         val exitPendingIntent = PendingIntent.getBroadcast(baseContext,0,exitIntent,PendingIntent.FLAG_UPDATE_CURRENT)
 
+        val imgArt = getImgArt(PlayerActivity.musicListPA[PlayerActivity.songPosition].path)
+        val img = if(imgArt!=null){
+            BitmapFactory.decodeByteArray(imgArt,0,imgArt.size)
+        }else{
+            BitmapFactory.decodeResource(resources,R.drawable.logo_music)
+        }
 
         val notification = NotificationCompat.Builder(baseContext, ApplicationClass.CHANNEL_ID)
             .setContentTitle(PlayerActivity.musicListPA[PlayerActivity.songPosition].title)
             .setContentText(PlayerActivity.musicListPA[PlayerActivity.songPosition].artist)
             .setSmallIcon(R.drawable.ic_music_notifi)
-            .setLargeIcon(BitmapFactory.decodeResource(resources,R.drawable.logo_music))
+            .setLargeIcon(img)
             .setStyle(androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(mediapSession.sessionToken))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -54,6 +61,19 @@ class MusicService : Service() {
             .build()
 
         startForeground(13,notification)
+    }
+
+    fun createMediaPlayer(){
+        try {
+            if(PlayerActivity.musicService!!.mediaPlayer == null) PlayerActivity.musicService!!.mediaPlayer = MediaPlayer()
+            PlayerActivity.musicService!!.mediaPlayer!!.reset()
+            PlayerActivity.musicService!!.mediaPlayer!!.setDataSource(PlayerActivity.musicListPA[PlayerActivity.songPosition].path)
+            PlayerActivity.musicService!!.mediaPlayer!!.prepare()
+            PlayerActivity.binding.playPauseBtnPA.setIconResource(R.drawable.ic_pause)
+            PlayerActivity.musicService!!.showNotification(R.drawable.ic_pause)
+        }catch (e: Exception){
+            return
+        }
     }
 
 }

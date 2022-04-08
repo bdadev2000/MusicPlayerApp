@@ -28,6 +28,7 @@ class PlayerActivity : AppCompatActivity(),ServiceConnection {
         setTheme(R.style.coolPink)
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         //For starting service
         val intent = Intent(this, MusicService::class.java)
         bindService(intent,this, BIND_AUTO_CREATE)
@@ -106,25 +107,13 @@ class PlayerActivity : AppCompatActivity(),ServiceConnection {
         }
     }
 
-    private fun setSongPosition(increment: Boolean){
-        if (increment)
-        {
-            if(musicListPA.size -1 == songPosition)
-                    songPosition = 0
-            else
-                ++songPosition
-        }else{
-            if(0== songPosition)
-                    songPosition = musicListPA.size -1
-            else --songPosition
-        }
-    }
+
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         val binder = service as MusicService.MyBinder
         musicService = binder.currentService()
         createMediaPlayer()
-        musicService!!.showNotification(R.drawable.ic_pause)
+
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
