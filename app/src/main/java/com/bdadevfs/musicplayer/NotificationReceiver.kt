@@ -47,6 +47,4 @@ class NotificationReceiver:BroadcastReceiver() {
         PlayerActivity.binding.songNamePA.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
         playMusic()
     }
-
-
 }
