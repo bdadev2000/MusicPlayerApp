@@ -106,6 +106,7 @@
         >
 
         <TextView
+            android:id="@+id/tvSeekBarStart"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textColor="@color/black"
@@ -115,12 +116,14 @@
             />
 
         <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/seekBarPA"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             tools:ignore="NestedWeights" />
 
         <TextView
+            android:id="@+id/tvSeekBarEnd"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textColor="@color/black"

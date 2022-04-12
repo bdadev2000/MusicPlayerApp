@@ -1,7 +1,9 @@
 package com.bdadevfs.musicplayer
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -13,9 +15,11 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bdadevfs.musicplayer.databinding.ActivityMainBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -61,7 +65,27 @@ class MainActivity : AppCompatActivity() {
                 R.id.navFeedback -> Toast.makeText(baseContext,"Feedback",Toast.LENGTH_SHORT).show()
                 R.id.navSetting -> Toast.makeText(baseContext,"Settings",Toast.LENGTH_SHORT).show()
                 R.id.navAbout -> Toast.makeText(baseContext,"About",Toast.LENGTH_SHORT).show()
-                R.id.navExit -> exitProcess(1)
+                R.id.navExit -> {
+                    val builder = MaterialAlertDialogBuilder(this)
+                    builder.setTitle("Thoát")
+                        .setMessage("Bạn có muốn đóng ứng dụng không?")
+                        .setPositiveButton("Có"){_,_->
+                            if(PlayerActivity.musicService!=null){
+                                PlayerActivity.musicService!!.stopForeground(true)
+                                PlayerActivity.musicService!!.mediaPlayer!!.release()
+                                PlayerActivity.musicService = null
+                            }
+                            exitProcess(1)
+
+                        }
+                        .setNegativeButton("Không"){dialog,_->
+                            dialog.dismiss()
+                        }
+                    val customDialog = builder.create()
+                    customDialog.show()
+                    customDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.RED)
+                    customDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.RED)
+                }
             }
             true
         }
@@ -84,7 +108,7 @@ class MainActivity : AppCompatActivity() {
         if(requestCode == 13){
             if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
-                Toast.makeText(this,"Permission Granted",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Đã cấp quyền truy cập ",Toast.LENGTH_SHORT).show()
                 initializeLayout()
             }
             else
@@ -107,8 +131,9 @@ class MainActivity : AppCompatActivity() {
         binding.musicRV.layoutManager = LinearLayoutManager(this@MainActivity)
         musicAdapter = MusicAdapter(this@MainActivity, MusicListMA)
         binding.musicRV.adapter = musicAdapter
-        binding.totalSong.text = "Total Songs:" + musicAdapter.itemCount
+        binding.totalSong.text = "Tổng số bài :" + musicAdapter.itemCount
     }
+    @SuppressLint("Range")
     private  fun  getAllAudio() : ArrayList<Music>{
         val tempList = ArrayList<Music>()
         val selection = MediaStore.Audio.Media.IS_MUSIC + " !=0"

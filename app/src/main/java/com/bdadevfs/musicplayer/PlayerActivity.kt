@@ -7,12 +7,13 @@ import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
+import android.widget.SeekBar
 import com.bdadevfs.musicplayer.databinding.ActivityPlayerBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import java.lang.Exception
 
-class PlayerActivity : AppCompatActivity(),ServiceConnection {
+class PlayerActivity : AppCompatActivity(),ServiceConnection,MediaPlayer.OnCompletionListener {
     companion object{
         lateinit var musicListPA : ArrayList<Music>
         var songPosition: Int = 0
@@ -46,6 +47,16 @@ class PlayerActivity : AppCompatActivity(),ServiceConnection {
         binding.nextBtn.setOnClickListener {
             prevNextSong(increment = true)
         }
+
+        binding.seekBarPA.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if(fromUser) musicService!!.mediaPlayer!!.seekTo(progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) =Unit
+        })
     }
     private fun setLayout(){
         Glide.with(this)
@@ -63,6 +74,11 @@ class PlayerActivity : AppCompatActivity(),ServiceConnection {
             musicService!!.mediaPlayer!!.start()
             isPlaying = true
             binding.playPauseBtnPA.setIconResource(R.drawable.ic_pause)
+            binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
+            binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
+            binding.seekBarPA.progress = 0
+            binding.seekBarPA.max = musicService!!.mediaPlayer!!.duration
+            musicService!!.mediaPlayer!!.setOnCompletionListener(this)
 
         }catch (e: Exception){
             return
@@ -113,12 +129,18 @@ class PlayerActivity : AppCompatActivity(),ServiceConnection {
         val binder = service as MusicService.MyBinder
         musicService = binder.currentService()
         createMediaPlayer()
-
+        musicService!!.seekBarSetup()
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
         musicService = null
     }
 
-
+    override fun onCompletion(mp: MediaPlayer?) {
+        setSongPosition(increment = true)
+        createMediaPlayer()
+        try {
+            setLayout()
+        }catch (e:Exception){return}
+    }
 }
